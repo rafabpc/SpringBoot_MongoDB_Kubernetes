@@ -1,0 +1,44 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: application-example-service
+spec:
+  selector:
+    app: application-example-service
+  ports:
+    - protocol: TCP
+      port: 8085
+      targetPort: 8085
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: application-example-service
+spec:
+  selector:
+    matchLabels:
+      app: application-example-service
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: application-example-service
+    spec:
+      containers:
+        - name: application-example-service
+          image: application-example-service:1.0
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8085
+          env:
+            - name: MONGO_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: mongodb-example-config
+                  key: database
+            - name: MONGO_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: mongodb-example-config
+                  key: host
